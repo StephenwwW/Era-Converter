@@ -29,8 +29,8 @@
 
 | Preview 
 | :---: | 
-| <img src="images/screenshot_1.png" alt="Main Interface" width="600"> |
-| <img src="images/screenshot_2.png" alt="Slider Demo" width="600"> | 
+| <img src="images/screenshot_1.png" alt="Main Interface" width="700"> |
+| <img src="images/screenshot_2.png" alt="Slider Demo" width="700"> | 
 
 ### 🚀 How to Use
 
@@ -66,13 +66,6 @@ This project is licensed under the **MIT License**.
 * **動態年齡計算**: 內建「基準年份」滑桿 (範圍 1868–2100)，拖曳即可改變計算基準，表格中的年齡數值會即時更新。
 * **多語言支援**: 內建 **繁體中文**、**English** 與 **日本語** 介面切換功能。
 * **單檔輕量化**: 採用單一 HTML 檔案架構，結合 Tailwind CSS (CDN) 與原生 JavaScript，無需安裝依賴或架設伺服器即可直接執行。
-
-### 🖼️ 預覽
-
-| 預覽圖片 | 功能描述 |
-| :---: | :--- |
-| <img src="screenshot_main.png" alt="主介面" width="400"> | **[主介面]**<br>清晰的表格視圖，展示各國年號與生肖對照。 |
-| <img src="demo_slider.gif" alt="動態演示" width="400"> | **[動態計算]**<br>拖曳滑桿時，系統會根據設定的基準年自動重新計算所有年齡。 |
 
 ### 🚀 如何使用
 
