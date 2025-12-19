@@ -29,8 +29,8 @@
 
 | Preview | Description |
 | :---: | :--- |
-| <img src="screenshot_main.png" alt="Main Interface" width="400"> | **[Main Interface]**<br>Clean table view showing comparative eras and zodiacs. |
-| <img src="demo_slider.gif" alt="Slider Demo" width="400"> | **[Dynamic Calculation]**<br>Dragging the slider automatically recalculates ages based on the selected base year. |
+| <img src="screenshot_1.png" alt="Main Interface" width="400"> | **[Main Interface]**<br>Clean table view showing comparative eras and zodiacs. |
+| <img src="screenshot_2.png" alt="Slider Demo" width="400"> | **[Dynamic Calculation]**<br>Dragging the slider automatically recalculates ages based on the selected base year. |
 
 ### 🚀 How to Use
 
