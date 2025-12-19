@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>民國西元年齡對照表 (民國30-130年)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .zodiac-icon {
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
+        }
+        .table-row-enter {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="max-w-4xl mx-auto p-4 md:p-8">
+        
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-indigo-700 mb-2">民國 / 西元 / 年齡 對照表</h1>
+            <p class="text-gray-600">
+                基準年份：民國 <span class="font-bold text-indigo-600">114</span> 年 (西元 2025 年)<br>
+                <span class="text-xs text-gray-500">*年齡計算以 2025 年為準 (實歲)</span>
+            </p>
+        </header>
+
+        <!-- Controls -->
+        <div class="bg-white rounded-xl shadow-md p-4 mb-6 sticky top-2 z-10 border border-indigo-50">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <input type="text" id="searchInput" 
+                    class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-gray-50 placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out" 
+                    placeholder="搜尋年份 (如: 75, 1986) 或 生肖 (如: 虎)...">
+            </div>
+            <div class="mt-2 text-right">
+                <button onclick="toggleSort()" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium focus:outline-none">
+                    <span id="sortLabel">切換排序 (新 → 舊)</span> ⇅
+                </button>
+            </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-indigo-600 text-white">
+                        <tr>
+                            <th scope="col" class="px-6 py-4 text-left text-sm font-bold tracking-wider uppercase">民國年份</th>
+                            <th scope="col" class="px-6 py-4 text-left text-sm font-bold tracking-wider uppercase">西元年份</th>
+                            <th scope="col" class="px-6 py-4 text-left text-sm font-bold tracking-wider uppercase">實歲年齡</th>
+                            <th scope="col" class="px-6 py-4 text-left text-sm font-bold tracking-wider uppercase">生肖</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="bg-white divide-y divide-gray-100">
+                        <!-- Rows will be populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden p-8 text-center text-gray-500">
+                <p>找不到符合的年份或生肖</p>
+            </div>
+        </div>
+
+        <footer class="mt-8 text-center text-gray-400 text-sm pb-8">
+            <p>© 2025 年齡對照表工具 | 資料範圍：民國30年 - 130年</p>
+        </footer>
+    </div>
+
+    <script>
+        // Configuration
+        const MAX_TABLE_YEAR = 130;   // 表格顯示到民國130年
+        const START_ROC_YEAR = 30;    // 表格從民國30年開始
+        const CURRENT_CALC_YEAR = 114; // 用來計算年齡的基準年 (2025)
+        
+        // Zodiac Data
+        const zodiacs = [
+            { char: '鼠', icon: '🐭', color: 'bg-slate-100 text-slate-700' },
+            { char: '牛', icon: '🐮', color: 'bg-stone-100 text-stone-700' },
+            { char: '虎', icon: '🐯', color: 'bg-orange-100 text-orange-700' },
+            { char: '兔', icon: '🐰', color: 'bg-pink-100 text-pink-700' },
+            { char: '龍', icon: '🐲', color: 'bg-yellow-100 text-yellow-700' },
+            { char: '蛇', icon: '🐍', color: 'bg-green-100 text-green-700' },
+            { char: '馬', icon: '🐴', color: 'bg-amber-100 text-amber-700' },
+            { char: '羊', icon: '🐏', color: 'bg-emerald-100 text-emerald-700' },
+            { char: '猴', icon: '🐵', color: 'bg-zinc-100 text-zinc-700' },
+            { char: '雞', icon: '🐔', color: 'bg-red-100 text-red-700' },
+            { char: '狗', icon: '🐶', color: 'bg-neutral-100 text-neutral-700' },
+            { char: '豬', icon: '🐷', color: 'bg-rose-100 text-rose-700' }
+        ];
+
+        // Helper: Get Zodiac based on AD year
+        function getZodiac(year) {
+            // 1900 was Year of Rat. (1900 - 4) % 12 = 8... wait.
+            // Rat is 4, 16, 28... (Year - 4) % 12 == 0 -> Rat
+            // Let's use a mapping reference. 2020 (Rat).
+            // (2020 - 4) % 12 = 0.
+            const offset = (year - 4) % 12;
+            return zodiacs[offset];
+        }
+
+        // Generate Data
+        let tableData = [];
+        for (let y = MAX_TABLE_YEAR; y >= START_ROC_YEAR; y--) {
+            const ad = y + 1911;
+            const age = CURRENT_CALC_YEAR - y; // Age in 2025
+            const zodiacObj = getZodiac(ad);
+            
+            tableData.push({
+                roc: y,
+                ad: ad,
+                age: age,
+                zodiac: zodiacObj
+            });
+        }
+
+        let isAscending = false; // Default: Newest first (Descending ROC year)
+
+        // DOM Elements
+        const tableBody = document.getElementById('tableBody');
+        const searchInput = document.getElementById('searchInput');
+        const emptyState = document.getElementById('emptyState');
+        const sortLabel = document.getElementById('sortLabel');
+
+        // Render Function
+        function renderTable(data) {
+            tableBody.innerHTML = '';
+            
+            if (data.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-indigo-50 transition-colors duration-150 table-row-enter';
+                
+                // Highlight current year logic (optional visual cue)
+                const isCurrentYear = row.roc === CURRENT_CALC_YEAR;
+                const rowClass = isCurrentYear ? 'bg-indigo-50' : '';
+                if(isCurrentYear) tr.classList.add('bg-indigo-50', 'border-l-4', 'border-indigo-500');
+
+                // Determine age display (handle future years)
+                let ageDisplay;
+                let ageClass;
+                
+                if (row.age < 0) {
+                    ageDisplay = "尚未出生";
+                    ageClass = "bg-gray-100 text-gray-500";
+                } else {
+                    ageDisplay = `${row.age} 歲`;
+                    ageClass = "bg-blue-100 text-blue-800";
+                }
+
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="text-lg font-bold text-gray-900">民國 ${row.roc} 年</span>
+                        ${isCurrentYear ? '<span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800">今年</span>' : ''}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="text-gray-600 font-medium">${row.ad}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-sm font-medium ${ageClass} min-w-[3rem]">
+                            ${ageDisplay}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${row.zodiac.color} border border-opacity-20 border-gray-400">
+                            <span class="zodiac-icon">${row.zodiac.icon}</span> ${row.zodiac.char}
+                        </span>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // Search/Filter Function
+        function filterData() {
+            const query = searchInput.value.trim().toLowerCase();
+            
+            let filtered = tableData.filter(item => {
+                const rocStr = item.roc.toString();
+                const adStr = item.ad.toString();
+                const ageStr = item.age.toString();
+                const zodiacStr = item.zodiac.char;
+                
+                return rocStr.includes(query) || 
+                       adStr.includes(query) || 
+                       ageStr === query ||
+                       zodiacStr.includes(query);
+            });
+
+            // Apply sort
+            if (isAscending) {
+                filtered.sort((a, b) => a.roc - b.roc);
+            } else {
+                filtered.sort((a, b) => b.roc - a.roc);
+            }
+
+            renderTable(filtered);
+        }
+
+        // Toggle Sort Order
+        function toggleSort() {
+            isAscending = !isAscending;
+            sortLabel.textContent = isAscending ? "切換排序 (舊 → 新)" : "切換排序 (新 → 舊)";
+            filterData(); // Re-render with new sort
+        }
+
+        // Event Listeners
+        searchInput.addEventListener('input', filterData);
+
+        // Initial Render
+        renderTable(tableData);
+
+    </script>
+</body>
+</html>

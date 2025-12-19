@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Era Converter</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', 'Noto Sans JP', sans-serif;
+        }
+        /* 自訂滑桿樣式 */
+        input[type=range] {
+            -webkit-appearance: none; appearance: none; width: 100%; cursor: pointer;
+            outline: none; border-radius: 9999px; height: 8px; background: #e2e8f0;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none; height: 20px; width: 20px;
+            background-color: #3b82f6; border-radius: 50%; border: none;
+            transition: background-color 0.2s ease-in-out;
+        }
+        input[type=range]::-webkit-slider-thumb:hover { background-color: #2563eb; }
+        input[type=range]::-moz-range-thumb {
+            height: 20px; width: 20px; background-color: #3b82f6;
+            border-radius: 50%; border: none; transition: background-color 0.2s ease-in-out;
+        }
+        input[type=range]::-moz-range-thumb:hover { background-color: #2563eb; }
+        /* 固定表格標頭 */
+        .sticky-header thead th { position: sticky; top: 0; z-index: 10; }
+        /* 語言切換按鈕樣式 */
+        .lang-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .lang-btn.active {
+            background-color: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-5xl bg-white rounded-2xl shadow-lg p-6 md:p-8 flex flex-col h-[90vh]">
+        
+        <!-- 語言切換 -->
+        <div id="lang-switcher" class="flex justify-center gap-2 mb-4">
+            <button class="lang-btn px-4 py-2 rounded-full text-sm font-medium bg-slate-200 text-slate-700 hover:bg-slate-300" data-lang="zh-TW">繁體中文</button>
+            <button class="lang-btn px-4 py-2 rounded-full text-sm font-medium bg-slate-200 text-slate-700 hover:bg-slate-300" data-lang="en">English</button>
+            <button class="lang-btn px-4 py-2 rounded-full text-sm font-medium bg-slate-200 text-slate-700 hover:bg-slate-300" data-lang="ja">日本語</button>
+        </div>
+
+        <!-- 標題與控制器 -->
+        <div class="text-center mb-6 flex-shrink-0">
+            <h1 class="text-3xl font-bold text-slate-800" data-lang-key="title"></h1>
+            <p class="text-slate-500 mt-2" data-lang-key="subtitle"></p>
+        </div>
+
+        <div class="mb-6 flex-shrink-0">
+            <div class="flex justify-between items-center mb-2">
+                <label for="base-year-slider" class="text-lg font-medium text-slate-700" data-lang-key="baseYearLabel"></label>
+                <span id="selected-base-year" class="text-2xl font-bold text-blue-600 bg-blue-100 px-4 py-1 rounded-lg">2025</span>
+            </div>
+            <input id="base-year-slider" type="range" min="1868" max="2100" value="2025" class="w-full">
+        </div>
+
+        <!-- 結果表格容器 -->
+        <div class="flex-grow overflow-y-auto border border-slate-200 rounded-lg sticky-header">
+            <table class="w-full text-left border-collapse">
+                <!-- 修正：移除 thead 的背景色，將其移至 th 確保 sticky 元素有背景 -->
+                <thead>
+                    <tr>
+                        <th class="p-3 text-sm font-semibold text-slate-600 uppercase tracking-wider text-center bg-slate-100" data-lang-key="headerYear"></th>
+                        <th class="p-3 text-sm font-semibold text-slate-600 uppercase tracking-wider text-center bg-slate-100" data-lang-key="headerROC"></th>
+                        <th class="p-3 text-sm font-semibold text-slate-600 uppercase tracking-wider text-center bg-slate-100" data-lang-key="headerZodiac"></th>
+                        <th class="p-3 text-sm font-semibold text-slate-600 uppercase tracking-wider text-center bg-slate-100" data-lang-key="headerEra"></th>
+                        <th id="age-header" class="p-3 text-sm font-semibold text-slate-600 uppercase tracking-wider text-center bg-slate-100"></th>
+                    </tr>
+                </thead>
+                <tbody id="result-table-body" class="bg-white divide-y divide-slate-200">
+                    <!-- JavaScript will generate table content here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // --- 多國語言資料 ---
+        const translations = {
+            'zh-TW': {
+                title: '年份對照總表',
+                subtitle: '滑動以設定年齡計算的基準年份',
+                baseYearLabel: '基準年份',
+                headerYear: '西元',
+                headerROC: '民國',
+                headerZodiac: '生肖',
+                headerEra: '日本年號',
+                ageHeader: '年齡',
+                ageUnit: '歲',
+                rocPrefix: '民國',
+                rocPrefixBefore: '民前',
+                eraMeiji: '明治',
+                eraTaisho: '大正',
+                eraShowa: '昭和',
+                eraHeisei: '平成',
+                eraReiwa: '令和',
+                yearUnit: '',
+                zodiacs: ['鼠', '牛', '虎', '兔', '龍', '蛇', '馬', '羊', '猴', '雞', '狗', '豬'],
+            },
+            'en': {
+                title: 'Era Conversion Table',
+                subtitle: 'Slide to set the base year for age calculation',
+                baseYearLabel: 'Base Year',
+                headerYear: 'Year',
+                headerROC: 'ROC Year',
+                headerZodiac: 'Zodiac',
+                headerEra: 'Japanese Era',
+                ageHeader: 'Age',
+                ageUnit: '',
+                rocPrefix: 'ROC',
+                rocPrefixBefore: 'Before ROC',
+                eraMeiji: 'Meiji',
+                eraTaisho: 'Taishō',
+                eraShowa: 'Shōwa',
+                eraHeisei: 'Heisei',
+                eraReiwa: 'Reiwa',
+                yearUnit: '',
+                zodiacs: ['Rat', 'Ox', 'Tiger', 'Rabbit', 'Dragon', 'Snake', 'Horse', 'Goat', 'Monkey', 'Rooster', 'Dog', 'Pig'],
+            },
+            'ja': {
+                title: '年号対照表',
+                subtitle: 'スライドして年齢計算の基準年を設定します',
+                baseYearLabel: '基準年',
+                headerYear: '西暦',
+                headerROC: '民国',
+                headerZodiac: '干支',
+                headerEra: '元号',
+                ageHeader: '年齢',
+                ageUnit: '歳',
+                rocPrefix: '民国',
+                rocPrefixBefore: '民国前',
+                eraMeiji: '明治',
+                eraTaisho: '大正',
+                eraShowa: '昭和',
+                eraHeisei: '平成',
+                eraReiwa: '令和',
+                yearUnit: '年',
+                zodiacs: ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'],
+            }
+        };
+
+        // --- DOM 元素 ---
+        const baseYearSlider = document.getElementById('base-year-slider');
+        const selectedBaseYearDisplay = document.getElementById('selected-base-year');
+        const tableBody = document.getElementById('result-table-body');
+        const ageHeader = document.getElementById('age-header');
+        const langSwitcher = document.getElementById('lang-switcher');
+
+        const START_YEAR = 1868;
+        const END_YEAR = 2100;
+        let currentLang = 'zh-TW';
+        let currentBaseYear = parseInt(baseYearSlider.value, 10);
+
+        // --- Helper Functions (with language support) ---
+        const getRocYear = (year, lang) => {
+            const dict = translations[lang];
+            if (year >= 1912) return `${dict.rocPrefix} ${year - 1911}${dict.yearUnit}`;
+            return `${dict.rocPrefixBefore} ${1912 - year}${dict.yearUnit}`;
+        };
+        const getChineseZodiac = (year, lang) => translations[lang].zodiacs[(year - 4) % 12];
+        const getJapaneseEra = (year, lang) => {
+            const dict = translations[lang];
+            if (year >= 2019) return `${dict.eraReiwa} ${year - 2018}${dict.yearUnit}`;
+            if (year >= 1989) return `${dict.eraHeisei} ${year - 1988}${dict.yearUnit}`;
+            if (year >= 1926) return `${dict.eraShowa} ${year - 1925}${dict.yearUnit}`;
+            if (year >= 1912) return `${dict.eraTaisho} ${year - 1911}${dict.yearUnit}`;
+            if (year >= 1868) return `${dict.eraMeiji} ${year - 1867}${dict.yearUnit}`;
+            return 'N/A';
+        };
+        const calculateAge = (birthYear, baseYear, lang) => {
+            const age = baseYear - birthYear;
+            // In English, 'age' is sufficient. In others, add the unit.
+            return lang === 'en' ? age : `${age} ${translations[lang].ageUnit}`;
+        };
+
+        // --- Core Functions ---
+        function generateTable(baseYear, lang) {
+            let tableHTML = '';
+            for (let year = START_YEAR; year <= END_YEAR; year++) {
+                const age = calculateAge(year, baseYear, lang);
+                tableHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors duration-200">
+                        <td class="p-3 text-center text-slate-700">${year}</td>
+                        <td class="p-3 text-center text-slate-700">${getRocYear(year, lang)}</td>
+                        <td class="p-3 text-center text-slate-700">${getChineseZodiac(year, lang)}</td>
+                        <td class="p-3 text-center text-slate-700">${getJapaneseEra(year, lang)}</td>
+                        <td class="p-3 text-center text-slate-800 font-medium age-cell">${age}</td>
+                    </tr>
+                `;
+            }
+            tableBody.innerHTML = tableHTML;
+        }
+
+        function updateAges(baseYear, lang) {
+            const ageCells = document.querySelectorAll('.age-cell');
+            ageCells.forEach((cell, index) => {
+                const birthYear = START_YEAR + index;
+                cell.textContent = calculateAge(birthYear, baseYear, lang);
+            });
+        }
+
+        function updateBaseYearDisplay(year, lang) {
+            selectedBaseYearDisplay.textContent = year;
+            ageHeader.textContent = `${translations[lang].ageHeader} (${year})`;
+        }
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            const dict = translations[lang];
+
+            // Update all static text elements
+            document.querySelectorAll('[data-lang-key]').forEach(el => {
+                const key = el.getAttribute('data-lang-key');
+                if (dict[key]) {
+                    el.textContent = dict[key];
+                }
+            });
+
+            // Update language switcher UI
+            langSwitcher.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+            
+            // Update dynamic content
+            updateBaseYearDisplay(currentBaseYear, lang);
+            generateTable(currentBaseYear, lang);
+        }
+
+        // --- Event Listeners ---
+        baseYearSlider.addEventListener('input', (event) => {
+            currentBaseYear = parseInt(event.target.value, 10);
+            updateBaseYearDisplay(currentBaseYear, currentLang);
+            updateAges(currentBaseYear, currentLang);
+        });
+
+        langSwitcher.addEventListener('click', (event) => {
+            const btn = event.target.closest('.lang-btn');
+            if (btn && btn.dataset.lang) {
+                changeLanguage(btn.dataset.lang);
+            }
+        });
+
+        // --- Initial Load ---
+        window.addEventListener('DOMContentLoaded', () => {
+            // Set initial language to Traditional Chinese
+            changeLanguage('zh-TW');
+        });
+    </script>
+
+</body>
+</html>
