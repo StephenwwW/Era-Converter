@@ -29,8 +29,8 @@
 
 | Preview 
 | :---: | 
-| <img src="images/screenshot_1.png" alt="Main Interface" width="400"> |
-| <img src="images/screenshot_2.png" alt="Slider Demo" width="400"> | 
+| <img src="images/screenshot_1.png" alt="Main Interface" width="600"> |
+| <img src="images/screenshot_2.png" alt="Slider Demo" width="600"> | 
 
 ### 🚀 How to Use
 
