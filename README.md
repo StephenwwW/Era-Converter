@@ -27,10 +27,10 @@
 
 ### 🖼️ Preview
 
-| Preview | Description |
-| :---: | :--- |
-| <img src="images/screenshot_1.png" alt="Main Interface" width="400"> | **[Preview]**<br>Clean table view showing comparative eras and zodiacs. |
-| <img src="images/screenshot_2.png" alt="Slider Demo" width="400"> | **[Preview]**<br>Dragging the slider automatically recalculates ages based on the selected base year. |
+| Preview 
+| :---: | 
+| <img src="images/screenshot_1.png" alt="Main Interface" width="400"> |
+| <img src="images/screenshot_2.png" alt="Slider Demo" width="400"> | 
 
 ### 🚀 How to Use
 
